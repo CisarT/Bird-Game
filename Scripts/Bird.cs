@@ -12,8 +12,17 @@ public class Bird : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask hunterLayer;
+    [SerializeField] private int remainingLives = 3; // Pøidán atribut [SerializeField] pro editaci poètu životù v Unity Editoru
 
-    void Update()
+    private Vector2 startPosition;  // Startovací pozice ptáka
+
+    private void Start()
+    {
+        startPosition = transform.position;  // Uložení startovací pozice ptáka
+    }
+
+    private void Update()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
 
@@ -49,5 +58,41 @@ public class Bird : MonoBehaviour
             localScale.x *= -1f;
             transform.localScale = localScale;
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (hunterLayer == (hunterLayer | (1 << collision.gameObject.layer)))
+        {
+            LoseLife();
+        }
+    }
+
+    private void LoseLife()
+    {
+        remainingLives--;
+        if (remainingLives <= 0)
+        {
+            Die();
+        }
+        else
+        {
+            Respawn();
+        }
+    }
+
+    private void Die()
+    {
+        // Zde provedeš akci po smrti objektu "Bird"
+        Destroy(gameObject);
+    }
+
+    private void Respawn()
+    {
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        transform.position = startPosition;
+
+        // Další akce, které chceš provést pøi respawnu
     }
 }
